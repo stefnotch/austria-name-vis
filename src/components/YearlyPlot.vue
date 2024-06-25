@@ -73,6 +73,23 @@ watchEffect(() => {
     .range([height, 0]);
   svg.append("g").call(d3.axisLeft(y));
 
+  // add the x-axis label
+  svg
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", width / 2)
+    .attr("y", height + margin.top)
+    .text("Jahr");
+
+  // add the y-axis label
+  svg
+    .append("text")
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -30)
+    .text("Anzahl");
+
   // Add the line
   svg
     .append("path")
