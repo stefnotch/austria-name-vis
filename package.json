@@ -9,7 +9,8 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "type-check": "vue-tsc --build --force",
+    "deploy": "vue-tsc --noEmit && vite build --base=/austria-name-vis/ && node utils/publish.js"
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "=1.28.1-dev223.0",
