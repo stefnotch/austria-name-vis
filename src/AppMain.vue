@@ -28,17 +28,17 @@ const props = defineProps<{
   backend: Backend;
 }>();
 
-const selectedName = ref<string | null>(null);
+const selectedName = ref<string | null>("Friedegund");
 const yearsInput = ref<[number, number]>([YEAR_RANGE[0], YEAR_RANGE[1]]);
 const years = computed(
   () => [Math.min(...yearsInput.value), Math.max(...yearsInput.value)] as const
 );
-const district = ref<IsoCode | null>(null);
+const district = ref<IsoCode | null>(616 as IsoCode);
 
 const maxTotalOccurences = ref<number>(1000);
-const maxOccurrences = ref<number>(10);
+const maxOccurrences = ref<number>(100);
 const minDistricts = ref<number>(1);
-const maxDistricts = ref<number>(100);
+const maxDistricts = ref<number>(30);
 
 const inputName = ref<string | null>(null);
 
@@ -219,18 +219,12 @@ const selectName = () => {
           />
           <n-button @click="selectName" size="small">Name auswählen</n-button>
         </div>
-        <NameTable
-          v-if="rarestNames !== null"
-          :selectedName="selectedName"
-          @update:selectedName="selectedName = $event"
-          :years="years"
-          :districtName="districtName"
-          :rarestNames="rarestNames"
-        />
         <div class="rareness-controls">
-          <n-h2>Seltenheit von Namen</n-h2>
+          <n-h2>Seltene Namen</n-h2>
           <div>
-            <label for="maxTotalOccurences">Maximale Gesamtanzahl:</label>
+            <label for="maxTotalOccurences"
+              >Maximale Anzahl in {{ districtName }}:</label
+            >
             <n-input-number
               v-model:value="maxTotalOccurences"
               size="small"
@@ -266,6 +260,15 @@ const selectName = () => {
             />
           </div>
         </div>
+
+        <NameTable
+          v-if="rarestNames !== null"
+          :selectedName="selectedName"
+          @update:selectedName="selectedName = $event"
+          :years="years"
+          :districtName="districtName"
+          :rarestNames="rarestNames"
+        />
       </div>
       <div class="border-x border-gray-700 p-2">
         <n-h2>Bezirke</n-h2>
