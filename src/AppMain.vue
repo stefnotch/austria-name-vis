@@ -6,39 +6,26 @@ import {
   NSelect,
   NH2,
   NH3,
-  NTable,
   NButton,
   NInput,
 } from "naive-ui";
-import {
-  computed,
-  ref,
-  watch,
-  watchEffect,
-  type Ref,
-  type UnwrapRef,
-} from "vue";
+import { computed, ref, watchEffect } from "vue";
 import AustriaMap from "./components/AustriaMap.vue";
 import YearlyPlot from "./components/YearlyPlot.vue";
 import ScatterPlot from "./components/ScatterPlot.vue";
 import NameTable from "./components/NameTable.vue";
-import {
-  type NameRegionRarity,
-  YEAR_RANGE,
-  fetchNameDistributionInDistricts,
-  fetchNameRegionRarity,
-  fetchRarestNames,
-  fetchYearlyNameDistribution,
-  type IsoCode,
-  type MapData,
-  type NameDistributionInDistricts,
-  type RarestNames,
-  type YearlyNameDistribution,
-} from "./backend";
-import { useDebounceFn, type PromisifyFn } from "@vueuse/core";
+import { YEAR_RANGE, type IsoCode, type MapData } from "./backend";
+import { useDebounceFn } from "@vueuse/core";
+import type {
+  Backend,
+  NameDistributionInDistricts,
+  RareName,
+  YearlyNameDistribution,
+} from "./backend-duckdb";
 
 const props = defineProps<{
   mapData: MapData;
+  backend: Backend;
 }>();
 
 const selectedName = ref<string | null>(null);
@@ -82,7 +69,9 @@ const nameDistributionInDistricts = ref<NameDistributionInDistricts | null>(
   null
 );
 const slowFetchNameDistributionInDistricts = useDebounceFn(
-  fetchNameDistributionInDistricts,
+  (
+    ...args: Parameters<typeof props.backend.fetchNameDistributionInDistricts>
+  ) => props.backend.fetchNameDistributionInDistricts(...args),
   500
 );
 watchEffect(() => {
@@ -101,7 +90,8 @@ watchEffect(() => {
 
 const yearlyNameDistribution = ref<YearlyNameDistribution | null>(null);
 const slowFetchYearlyNameDistribution = useDebounceFn(
-  fetchYearlyNameDistribution,
+  (...args: Parameters<typeof props.backend.fetchYearlyNameDistribution>) =>
+    props.backend.fetchYearlyNameDistribution(...args),
   500
 );
 watchEffect(() => {
@@ -139,8 +129,12 @@ const reducedYearlyNameDistribution = computed(() => {
   };
 });
 
-const rarestNames = ref<RarestNames | null>(null);
-const slowFetchRarestNames = useDebounceFn(fetchRarestNames, 500);
+const rarestNames = ref<RareName[] | null>(null);
+const slowFetchRarestNames = useDebounceFn(
+  (...args: Parameters<typeof props.backend.fetchRarestNames>) =>
+    props.backend.fetchRarestNames(...args),
+  500
+);
 watchEffect(() => {
   slowFetchRarestNames({
     yearMin: years.value[0],
@@ -155,24 +149,11 @@ watchEffect(() => {
   });
 });
 
-const nameRegionRarity = ref<NameRegionRarity[] | null>(null);
-const slowFetchNameRegionRarity = useDebounceFn(fetchNameRegionRarity, 500);
-watchEffect(() => {
-  if (district.value) {
-    slowFetchNameRegionRarity({
-      district: district.value,
-      yearMin: years.value[0],
-      yearMax: years.value[1],
-      maxPerYear: maxOccurrences.value,
-      maxTotal: maxTotalOccurences.value,
-      minDistricts: minDistricts.value,
-      maxDistricts: maxDistricts.value,
-    }).then((data) => {
-      nameRegionRarity.value = data ?? null;
-    });
-  } else {
-    nameRegionRarity.value = null;
+const nameRegionRarity = computed<RareName[] | null>(() => {
+  if (district.value === null) {
+    return null;
   }
+  return rarestNames.value;
 });
 
 const pointsNameRegionRarity = computed(() => {
@@ -181,7 +162,7 @@ const pointsNameRegionRarity = computed(() => {
   }
   return nameRegionRarity.value.map((entry) => ({
     x: entry.Count_total,
-    y: entry.Count_district,
+    y: entry.Count,
     value: `${entry.Name}`,
   }));
 });
@@ -198,9 +179,7 @@ const yAxisNameRegionRarity = computed(() => {
   if (nameRegionRarity.value === null) {
     return [0, 1] as const;
   }
-  const max = Math.max(
-    ...nameRegionRarity.value.map((entry) => entry.Count_district)
-  );
+  const max = Math.max(...nameRegionRarity.value.map((entry) => entry.Count));
   return [0, max] as const;
 });
 

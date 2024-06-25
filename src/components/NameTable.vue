@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import type { RareName } from "@/backend-duckdb";
 import { NTable, NButton } from "naive-ui";
-import { type RarestNames } from "@/backend";
+import { computed } from "vue";
 
 const props = defineProps<{
   selectedName: string | null;
   years: readonly [number, number];
   districtName: string;
-  rarestNames: RarestNames;
+  rarestNames: RareName[];
 }>();
+
+const topRarestNames = computed(() => {
+  return props.rarestNames.slice(0, 8);
+});
+
 const emits = defineEmits<{
   "update:selectedName": [name: string];
 }>();
@@ -20,15 +26,15 @@ const emits = defineEmits<{
         <th colspan="2">
           Häufigkeit {{ props.years[0] }} - {{ props.years[1] }}
         </th>
-        <th rowspan="2">Anzahl der Bezirke</th>
+        <th rowspan="2"># Bezirke</th>
       </tr>
       <tr>
-        <th>in {{ props.districtName }}</th>
-        <th>in Österreich</th>
+        <th>{{ props.districtName }}</th>
+        <th>Österreich</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(entry, index) in props.rarestNames ?? []" :key="index">
+      <tr v-for="(entry, index) in topRarestNames ?? []" :key="index">
         <td>
           <n-button
             @click="emits('update:selectedName', entry.Name)"

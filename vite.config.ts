@@ -12,9 +12,7 @@ export default defineConfig({
     },
   },
   build: {
-    target: "esnext",
+    target: "es2022",
   },
-  worker: {
-    format: "es",
-  },
+  esbuild: { target: "es2022" },
 });

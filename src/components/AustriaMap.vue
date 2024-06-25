@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import RenderD3 from "./RenderD3.vue";
 import ChartTooltip from "./ChartTooltip.vue";
-import type { IsoCode, MapData, NameDistributionInDistricts } from "@/backend";
+import type { IsoCode, MapData } from "@/backend";
 import * as d3 from "d3";
 import { ref, watchEffect } from "vue";
+import type { NameDistributionInDistricts } from "@/backend-duckdb";
 
 const props = defineProps<{
   mapData: MapData;

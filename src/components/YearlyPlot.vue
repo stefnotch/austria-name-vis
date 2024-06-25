@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NH3 } from "naive-ui";
 import ChartTooltip from "./ChartTooltip.vue";
 import RenderD3 from "./RenderD3.vue";
-import { YEAR_RANGE, type YearlyNameDistribution } from "@/backend";
+import { YEAR_RANGE } from "@/backend";
+import type { YearlyNameDistribution } from "@/backend-duckdb";
 import * as d3 from "d3";
 import { ref, watchEffect } from "vue";
 

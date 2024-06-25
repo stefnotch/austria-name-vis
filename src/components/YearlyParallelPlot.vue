@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { NH3 } from "naive-ui";
 import RenderD3 from "./RenderD3.vue";
-import { type YearlyNameDistribution } from "@/backend";
 import * as d3 from "d3";
 import { watchEffect } from "vue";
+import type { YearlyNameDistribution } from "@/backend-duckdb";
 
 const props = defineProps<{
   width: number;
